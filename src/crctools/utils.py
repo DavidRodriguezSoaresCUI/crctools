@@ -52,7 +52,9 @@ def filename_extract_crc(filename: str) -> tuple[str | None, str]:
     return match.group(1)[1:-1], filename[:a] + filename[b:]
 
 
-def verify_file(_file: Path, overwrite_digest_in_name: bool = False) -> Status:
+def verify_file(
+    _file: Path, overwrite_digest_in_name: bool = False, skip_verify: bool = False
+) -> Status:
     """Compute file's digest, then either checks integrity if file has digest in name
     or adds digest to name.
 
@@ -64,13 +66,17 @@ def verify_file(_file: Path, overwrite_digest_in_name: bool = False) -> Status:
     `overwrite_digest_in_name`: If True, overwrite digest in name in cases of failed
     integrity verification.
     """
+    digest_in_name, stem_without_digest = filename_extract_crc(_file.stem)
+    if digest_in_name is not None and skip_verify:
+        print(f"[SKIPPED] {_file}: already has hash in file name")
+        return Status.SKIPPED
+
+    file_size_MB = _file.stat().st_size / 1_000_000
     start_t = time()
     digest = hex(file_crc32(_file))[2:].rjust(8, "0").upper()
-    file_size_MB = _file.stat().st_size / 1_000_000
     performance_MBps = f"[{file_size_MB / (time() - start_t):0.1f}MB/s]"
     rename_target = False
     return_status = None
-    digest_in_name, stem_without_digest = filename_extract_crc(_file.stem)
     if digest_in_name is None:
         # Case : no digest in filename => add it
         print(f"[COMPUTED] {_file.name} {performance_MBps}: computed CRC is {digest}")

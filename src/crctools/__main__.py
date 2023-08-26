@@ -16,6 +16,11 @@ def get_args() -> argparse.Namespace:
         help="Can be file path or directory (all files in directory will be processed)",
     )
     parser.add_argument(
+        "--skip_verify",
+        action="store_true",
+        help="Skip verification; only process files with no hash in filename",
+    )
+    parser.add_argument(
         "--overwrite",
         action="store_true",
         help="Overwrite CRC in filename when verification fails",
@@ -29,7 +34,7 @@ def get_args() -> argparse.Namespace:
         "--extensions",
         action="store",
         nargs="*",
-        help="Restrict files to process with extension whitelist (default: no restriction; you may list extensions with leading comma)",
+        help="Restrict files to process with extension whitelist (default: no restriction; you may list extensions with leading dot separator)",
     )
     parser.add_argument(
         "--min_size",
@@ -37,6 +42,11 @@ def get_args() -> argparse.Namespace:
         type=int,
         default=0,
         help="Restrict files to ones of at least <min_size> bytes (default: 0)",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Debug mode (undocumented on purpose)",
     )
     return parser.parse_args()
 
@@ -64,7 +74,7 @@ def _process_file(
         )
         processed_files_by_status[Status.SKIPPED].append(_file)
         return
-    return_status = verify_file(_file, args.overwrite)
+    return_status = verify_file(_file, args.overwrite, args.skip_verify)
     processed_files_by_status[return_status].append(_file)
 
 
@@ -75,10 +85,12 @@ def process_file(
 ) -> None:
     """Catches errors from process_file execution"""
     try:
-        process_file(_file, args, processed_files_by_status)
+        _process_file(_file, args, processed_files_by_status)
     except Exception as e:
-        print(f"[ERROR] {_file.name}: something went wrong\n{e}")
+        print(f"[ERROR] {_file.name}: something went wrong\n{e}\n")
         processed_files_by_status[Status.ERROR].append(_file)
+        if args.debug:
+            raise e
 
 
 def process_dir(
@@ -98,28 +110,44 @@ def main() -> None:
     args = get_args()
     if args.overwrite:
         print("WARNING: Overwriting hash in name enabled")
+    if args.extensions:
+        args.extensions = {
+            ("" if e.startswith(".") else ".") + e.upper() for e in args.extensions
+        }
+    if args.debug:
+        print(f"args={args}")
 
     # Process file(s)
     _path = Path(args.PATH).resolve()
     processed_files_by_status: dict[Status, list[Path]] = defaultdict(list)
     if not _path.exists():
         raise FileNotFoundError(f"Couldn't find a file or directory at '{_path}'")
-    if _path.is_dir():
-        process_dir(_path, args, processed_files_by_status)
-    elif _path.is_file():
-        process_file(_path, args, processed_files_by_status)
-    else:
-        raise ValueError(
-            f"Unhandled case: Path '{_path}' exists but is neither a directory or a file"
-        )
+
+    try:
+        if _path.is_dir():
+            process_dir(_path, args, processed_files_by_status)
+        elif _path.is_file():
+            process_file(_path, args, processed_files_by_status)
+        else:
+            raise ValueError(
+                f"Unhandled case: Path '{_path}' exists but is neither a directory or a file"
+            )
+    except KeyboardInterrupt:
+        print("Program interrupted")
 
     # Save report to file
     json_report_file = get_available_file_path(
-        CWD, time.strftime("%Y%m%d-%H%M%S"), "json"
+        CWD, time.strftime("%Y%m%d-%H%M%S"), ".json"
     )
     print(f"Saving execution report to {json_report_file.name}")
     with json_report_file.open("w", encoding="utf8") as f:
-        json.dump(processed_files_by_status, f, default=str, indent=2)
+        json.dump(
+            {k.name: v for k, v in processed_files_by_status.items()},
+            f,
+            default=str,
+            indent=2,
+            ensure_ascii=False,
+        )
 
 
 if __name__ == "__main__":
