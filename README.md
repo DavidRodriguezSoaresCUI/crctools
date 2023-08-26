@@ -19,7 +19,7 @@ This project was developed for Python 3.10 and may not work on lower versions.
 From a terminal execute:
 
 ```bash
-python -m pip install crctools_DavidRodriguezSoaresCUI
+python -m pip install crctools-DavidRodriguezSoaresCUI
 ```
 
 On some systems it may be necessary to specify python version as `python3`
