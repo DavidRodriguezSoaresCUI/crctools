@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 <!-- As much as possible use subsections: Added, Removed, Modified, BugFix -->
 
+## [0.0.3] - 2023-08-27
+
+### Added
+
+- Concept of `frozen directories`: see `README.md`
+  > New related fields: ``--skip_frozen_dirs``, ``--frozen_dirs``, ``--frozen_dir_file_ext``
+
+### Modified
+
+- `--min_size`: added support for human-readable numbers with SI suffix like `-4.4k` and `87G`
+- `--write_report`: Now an option enabled via CLI argument
+- `--debug`: now hidden from `--help`
+- To reduce the number of messages printed, messages related to skipping files are now only enabled with `--debug`
+
 ## [0.0.2] - 2023-08-26
 
 ### Added

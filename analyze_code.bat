@@ -20,8 +20,10 @@ bandit %FILE_LIST% 1>>%report_file% 2>NUL
 
 ECHO Analyzing with PYLINT
 ECHO ==== PYLINT ==== >>%report_file%
-pylint %FILE_LIST% >>%report_file%
+:: Disable rule with --disable (ex: --disable=C0301)
+pylint --disable=C0301,C0103 %FILE_LIST% >>%report_file%
 
 ECHO Analyzing with FLAKE8
 ECHO ==== FLAKE8 ==== >>%report_file%
-python -m flake8 %FILE_LIST% >>%report_file%
+:: Disable rule with --extend-ignore (ex: --extend-ignore=E501)
+python -m flake8 --extend-ignore=E501 %FILE_LIST% >>%report_file%

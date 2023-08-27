@@ -29,7 +29,9 @@ On some systems it may be necessary to specify python version as `python3`
 ```bash
 $> python -m crctools --help
 usage: __main__.py [-h] [--skip_verify] [--overwrite] [--recursive] [--extensions [EXTENSIONS ...]]
-                   [--min_size MIN_SIZE] [--debug]
+                   [--min_size MIN_SIZE] [--write_report] [--skip_frozen_dirs]
+                   [--frozen_dirs [FROZEN_DIRS ...]]
+                   [--frozen_dir_file_ext [FROZEN_DIR_FILE_EXT ...]] [--debug]
                    PATH
 
 positional arguments:
@@ -37,14 +39,24 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --skip_verify         Skip verification; only process files with no hash in filename
+  --skip_verify         Skip verification; only process files with no hash in filename (useful to
+                        resume interrupted execution)
   --overwrite           Overwrite CRC in filename when verification fails
   --recursive           (Only with PATH a directory) Enables recursive search for files to verify
   --extensions [EXTENSIONS ...]
                         Restrict files to process with extension whitelist (default: no restriction;
                         you may list extensions with leading dot separator)
-  --min_size MIN_SIZE   Restrict files to ones of at least <min_size> bytes (default: 0)
-  --debug               Debug mode (undocumented on purpose)
+  --min_size MIN_SIZE   Restrict files to ones of at least <min_size> bytes; accepts values like
+                        '-4.4k', '99G' or '0.5M' (case insensitive); default: 0)
+  --write_report        Writes JSON file with list of files processed by category: COMPUTED,
+                        VERIFIED, ERROR
+  --skip_frozen_dirs    Skip frozen dirs (see --frozen_dirs)
+  --frozen_dirs [FROZEN_DIRS ...]
+                        Name of directories that should be treated as read-only (so no file
+                        renaming); default: VIDEO_TS BDMV
+  --frozen_dir_file_ext [FROZEN_DIR_FILE_EXT ...]
+                        List of file extensions typically associated with frozen directories (used
+                        for warning); default: IFO BUP VOB M2TS BDMV MPLS CLPI
 ```
 
 Example: Check large (>10MB) video files in directory `D:\Videos` (and subdirectories) :
@@ -57,3 +69,13 @@ Note: these are all equivalent:
 - `--extensions .mkv .mp4`
 - `--extensions MKV MP4`
 - `--extensions .MKV .MP4`
+
+I typically use:
+```
+python -m crctools . --recursive --extension AVI MP4 MKV WMV ZIP TS MOV WEBM RAR --min_size 20M
+```
+
+
+### Concept of `frozen directories`
+
+Some directories, like DVD/BD disk backups, have a known directory structure and shouldn't be changed by adding hash into file names. Instead, all files inside are hashed, their hashes collected into a file outside the directory, and that file hashed to give a "composite" hash that represents the whole directory.
