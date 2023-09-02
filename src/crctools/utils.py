@@ -198,7 +198,12 @@ def verify_file(
         else:
             # rename file
             new_name = get_available_file_path(
-                _file.parent, stem_without_digest + f" [{digest}]", _file.suffix
+                _file.parent,
+                stem_without_digest
+                + ("" if stem_without_digest.endswith("]") else " ")
+                + ("" if expected_digest is None else f"[!{expected_digest}]")
+                + f"[{digest}]",
+                _file.suffix,
             )
             LOG.info("[RENAMING] '%s' -> '%s'", _file.name, new_name.name)
             _file.rename(new_name)

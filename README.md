@@ -61,7 +61,7 @@ options:
 
 Example: Check large (>10MB) video files in directory `D:\Videos` (and subdirectories) :
 ```
-python -m crctools "D:\Vidéos" --recursive --extensions mkv mp4 --min_size 10000000
+python -m crctools "D:\Vidéos" --recursive --extensions mkv mp4 --min_size 10M
 ```
 
 Note: these are all equivalent:
@@ -72,8 +72,10 @@ Note: these are all equivalent:
 
 I typically use:
 ```
-python -m crctools . --recursive --extension AVI MP4 MKV WMV ZIP TS MOV WEBM RAR --min_size 20M
+python -m crctools . --recursive --extension 7Z AAC AC3 APK AVI FLAC FLV ISO M2TS M4A M4V MKV MOV MP4 MPEG MPG NDS PDF RAR RMVB TS WAV WBFS WEBM WMV ZIP --min_size 20M --write_report
 ```
+
+
 
 
 ### Concept of `frozen directories`
