@@ -254,7 +254,7 @@ def process_frozen_dir(
 
     # Save local hashes if modified (removes previous local hash file)
     if local_hashes is not None and local_hashes.was_edited:
-        hash_db_json = json.dumps(local_hashes)
+        hash_db_json = json.dumps(local_hashes, sort_keys=True, indent=2)
         if local_hash_file is not None:
             LOG.info("Overwriting local hash file '%s'", local_hash_file)
             local_hash_file.unlink()

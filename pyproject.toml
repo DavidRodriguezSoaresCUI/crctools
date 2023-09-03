@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "crctools-DavidRodriguezSoaresCUI"
-version = "0.0.4+SNAPSHOT"
+version = "0.0.4"
 authors = [
   { name="DavidRodriguezSoaresCUI", email="fireblaze904+crctools@gmail.com" },
 ]

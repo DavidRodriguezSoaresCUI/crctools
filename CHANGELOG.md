@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 <!-- As much as possible use subsections: Added, Removed, Changed, BugFix -->
 
-## [0.0.4] - In development
+## [0.0.4] - 2023-09-03
 
 ### Added
 
@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Hash in file replacement : if file contains an incorrect hash in file name and `--overwrite` is set, the original hash is kept next to the correct/new hash. This is done to keep history of overridden hashes and deal with file name elements incorrectly interpreted as hash. _WARNING: this may lead to file names that exceed file system length limits (in which case renaming would fail)_
   > `[<original_hash>]` => `[!<original_hash>][<new_hash>]`
+- Frozen directory hash file: its content is sorted to remove a point of variability
 
 ## [0.0.3] - 2023-08-27
 
